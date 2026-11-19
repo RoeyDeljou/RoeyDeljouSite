@@ -1,20 +1,24 @@
 ---
 /**
  * Cover art for a project: generative gradient art from the project's `hue`.
- * If `image` (a portrait mobile screenshot) is set, it is shown inside a phone
- * mockup over the gradient; otherwise the `mark` monogram is shown.
+ * If `image` is set it is shown framed according to `frame`:
+ *   phone   – portrait mobile screenshot in a phone mockup
+ *   browser – landscape desktop screenshot in a browser window
+ *   logo    – a square logo shown as a floating tile
+ * Otherwise the `mark` monogram is shown.
  */
 interface Props {
   title: string;
   hue: number;
   mark?: string;
   image?: string;
+  frame?: 'phone' | 'browser' | 'logo';
   class?: string;
   size?: 'md' | 'lg';
   /** View-transition name, so the cover morphs into the case-study page. */
   vt?: string;
 }
-const { title, hue, mark, image, class: cls = '', size = 'md', vt } = Astro.props;
+const { title, hue, mark, image, frame = 'phone', class: cls = '', size = 'md', vt } = Astro.props;
 const h2 = (hue + 48) % 360;
 const label = mark ?? title.slice(0, 2).toUpperCase();
 ---
@@ -24,8 +28,19 @@ const label = mark ?? title.slice(0, 2).toUpperCase();
   <div class="cover-orb cover-orb-a absolute"></div>
   <div class="cover-orb cover-orb-b absolute"></div>
   {
-    image ? (
-      <div class={`phone absolute left-1/2 -translate-x-1/2 ${size === 'lg' ? 'phone-lg' : ''}`}>
+    image && frame === 'browser' ? (
+      <div class={`browser absolute inset-x-0 mx-auto ${size === 'lg' ? 'browser-lg' : ''}`}>
+        <div class="browser-bar"><i /><i /><i /><span /></div>
+        <img src={image} alt="" loading="lazy" decoding="async" width="1200" height="750" />
+      </div>
+    ) : image && frame === 'logo' ? (
+      <div class="absolute inset-0 grid place-items-center">
+        <div class={`logo-tile ${size === 'lg' ? 'logo-tile-lg' : ''}`}>
+          <img src={image} alt={`${title} logo`} loading="lazy" decoding="async" width="480" height="480" />
+        </div>
+      </div>
+    ) : image ? (
+      <div class={`phone absolute inset-x-0 mx-auto ${size === 'lg' ? 'phone-lg' : ''}`}>
         <img src={image} alt="" loading="lazy" decoding="async" width="540" height="1169" />
       </div>
     ) : (
@@ -116,10 +131,50 @@ const label = mark ?? title.slice(0, 2).toUpperCase();
     object-position: top;
     border-radius: 1.6rem;
   }
+  /* Browser-window mockup for desktop screenshots */
+  .browser {
+    top: 12%;
+    width: 86%;
+    border-radius: 0.8rem;
+    overflow: hidden;
+    background: #0b0c14;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.12),
+      0 30px 60px -20px rgb(0 0 0 / 0.65),
+      0 0 50px -10px hsl(var(--h1) 90% 60% / 0.45);
+    transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .browser-lg { width: 72%; top: 10%; }
+  .browser-bar { display: flex; align-items: center; gap: 5px; height: 22px; padding: 0 10px; background: #161827; }
+  .browser-bar i { width: 7px; height: 7px; border-radius: 99px; background: #3a3d55; }
+  .browser-bar i:nth-child(1) { background: #ff5f57; }
+  .browser-bar i:nth-child(2) { background: #febc2e; }
+  .browser-bar i:nth-child(3) { background: #28c840; }
+  .browser-bar span { flex: 1; height: 10px; margin-left: 10px; max-width: 40%; border-radius: 99px; background: #23263a; }
+  .browser img { display: block; width: 100%; height: auto; }
+
+  /* Floating logo tile */
+  .logo-tile {
+    width: min(38%, 11rem);
+    aspect-ratio: 1;
+    border-radius: 1.4rem;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.1),
+      0 30px 60px -20px rgb(0 0 0 / 0.7),
+      0 0 70px -10px hsl(var(--h1) 95% 55% / 0.6);
+    animation: float 6s ease-in-out infinite;
+  }
+  .logo-tile-lg { width: min(26%, 15rem); }
+  .logo-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  @keyframes float { 50% { transform: translateY(-8px) rotate(-1.5deg); } }
+
+  :global(.group:hover) .browser { transform: translateY(-3%); }
   :global(.group:hover) .cover-orb-a { transform: translate(-12%, 10%) scale(1.1); }
   :global(.group:hover) .cover-orb-b { transform: translate(14%, -8%) scale(1.1); }
   :global(.group:hover) .phone { transform: translateY(-4%); }
   @media (prefers-reduced-motion: reduce) {
-    .phone, .cover-orb { transition: none; }
+    .phone, .cover-orb, .browser { transition: none; }
+    .logo-tile { animation: none; }
   }
 </style>

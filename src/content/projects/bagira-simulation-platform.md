@@ -14,7 +14,9 @@ highlights:
   - Realistic 3D combat and training scenarios in C#
   - Animation pipelines, AI behaviours and performance work
   - Supported the first international simulator deployment, in Europe
-hue: 0
+image: /projects/bagira.webp
+imageFrame: logo
+hue: 28
 mark: SIM
 ---
 

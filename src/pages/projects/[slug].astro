@@ -102,7 +102,7 @@ const { Content } = await render(project);
         </dl>
       </header>
 
-      <ProjectCover title={data.title} hue={data.hue} mark={data.mark} image={data.image} size="lg" vt={project.id} class="no-print mt-12 aspect-[16/7] rounded-3xl border border-line" />
+      <ProjectCover title={data.title} hue={data.hue} mark={data.mark} image={data.image} frame={data.imageFrame} size="lg" vt={project.id} class="no-print mt-12 aspect-[16/7] rounded-3xl border border-line" />
 
       {
         data.metrics.length > 0 && (

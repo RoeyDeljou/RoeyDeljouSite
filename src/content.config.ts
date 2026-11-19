@@ -43,6 +43,8 @@ const projects = defineCollection({
     hue: z.number().min(0).max(360).default(250),
     /** Optional MOBILE screenshot in /public (portrait, ~390px wide), shown in a phone mockup over the cover art. */
     image: z.string().optional(),
+    /** How `image` is framed: 'phone' (portrait app screenshot), 'browser' (desktop screenshot) or 'logo'. */
+    imageFrame: z.enum(['phone', 'browser', 'logo']).default('phone'),
     /** Short label for cover art, e.g. an emoji-free monogram like 'FPL'. */
     mark: z.string().optional(),
   }),

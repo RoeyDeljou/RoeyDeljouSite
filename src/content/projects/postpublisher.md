@@ -18,6 +18,8 @@ metrics:
   - { value: '5', label: 'specialised agents' }
   - { value: '0', label: 'manual steps per post' }
 repo: https://github.com/RoeyDeljou/PostPublisher
+image: /projects/postpublisher.webp
+imageFrame: browser
 hue: 210
 mark: AI
 ---
