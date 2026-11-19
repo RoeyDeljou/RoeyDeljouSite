@@ -12,7 +12,7 @@
   --fg-muted: #4a5068;
   --fg-subtle: #575e7a;
   --border: #e2e5ef;
-  --accent: #5b5bf0;
+  --accent: #4f46e5;
   --accent-2: #0ea5c6;
   --accent-fg: #ffffff;
   --glow: rgba(91, 91, 240, 0.18);
@@ -197,3 +197,122 @@ body {
   .card { box-shadow: none; }
   a { text-decoration: none; }
 }
+
+/* =========================================================
+   Motion layer
+   ========================================================= */
+
+/* Cross-document page transitions (Chrome/Edge/Safari 18+), zero JS */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.45s; }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+
+/* Scroll progress */
+#scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  z-index: 60;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 12px var(--accent);
+}
+
+/* Film grain */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 1.2s steps(6) infinite;
+}
+:root[data-theme='light'] .grain { opacity: 0.035; }
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .grain { animation: none; } }
+
+/* Custom cursor (desktop only, enabled by JS) */
+#cursor-dot, #cursor-ring { display: none; }
+html.has-cursor #cursor-dot,
+html.has-cursor #cursor-ring {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 120;
+  pointer-events: none;
+  border-radius: 999px;
+}
+html.has-cursor #cursor-dot {
+  width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  background: var(--accent-2);
+}
+html.has-cursor #cursor-ring {
+  width: 38px; height: 38px; margin: -19px 0 0 -19px;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  display: grid;
+  place-items: center;
+  transition: width 0.3s, height 0.3s, margin 0.3s, background-color 0.3s, border-color 0.3s;
+}
+html.has-cursor #cursor-ring.is-hover {
+  width: 64px; height: 64px; margin: -32px 0 0 -32px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: transparent;
+}
+html.has-cursor #cursor-ring.has-label {
+  width: 92px; height: 92px; margin: -46px 0 0 -46px;
+  background: var(--fg);
+}
+html.has-cursor #cursor-ring.is-down { width: 30px; height: 30px; margin: -15px 0 0 -15px; }
+#cursor-label {
+  font: 600 0.68rem/1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bg);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#cursor-ring.has-label #cursor-label { opacity: 1; }
+html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
+
+/* Split text */
+.split-word { display: inline-block; white-space: nowrap; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; vertical-align: top; }
+.split-char { display: inline-block; will-change: transform; }
+
+/* Tilt glare */
+[data-tilt] { position: relative; }
+[data-tilt]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(500px circle at var(--gx, 50%) var(--gy, 50%), rgb(255 255 255 / 0.08), transparent 45%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+[data-tilt]:hover::after { opacity: 1; }
+
+/* Outline display text */
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--fg) 55%, transparent);
+}
+
+/* Marquee */
+.marquee { display: flex; overflow: hidden; user-select: none; }
+.marquee-track { display: flex; flex-shrink: 0; align-items: center; gap: 2.5rem; padding-right: 2.5rem; animation: marquee var(--marquee-speed, 32s) linear infinite; }
+.marquee-reverse .marquee-track { animation-direction: reverse; }
+@keyframes marquee { to { transform: translateX(-100%); } }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }

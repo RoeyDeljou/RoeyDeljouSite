@@ -1,5 +1,4 @@
 ---
-import SectionHeading from './SectionHeading.astro';
 import ProjectCover from './ProjectCover.astro';
 import ProjectBadges from './ProjectBadges.astro';
 import Icon from './Icon.astro';
@@ -10,130 +9,166 @@ const featured = projects.filter((p) => p.data.featured);
 const rest = projects.filter((p) => !p.data.featured);
 const categories = ['work', 'client', 'personal', 'collab'] as const;
 const counts = Object.fromEntries(categories.map((c) => [c, rest.filter((p) => p.data.category === c).length]));
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
-<section id="projects" class="py-20 sm:py-28">
+<section id="projects" class="relative py-20 sm:py-28">
   <div class="container-x">
-    <SectionHeading
-      eyebrow="Selected work"
-      title="Projects I’m proud of."
-      subtitle="From real-time combat-training simulators to production PWAs and autonomous AI pipelines. Each one links to a full case study: the problem, the architecture, and the decisions behind it."
-    />
+    <div class="mb-12 flex flex-col gap-6 sm:mb-16 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+        <p class="mb-3 font-mono text-xs font-medium tracking-[0.2em] text-accent uppercase">Selected work</p>
+        <h2 class="text-4xl font-semibold tracking-tighter sm:text-6xl" data-split>Things I’ve shipped.</h2>
+      </div>
+      <p class="reveal max-w-md text-base leading-relaxed text-muted">
+        Simulators, live products, multiplayer games and autonomous AI pipelines. Every project opens into a full case study: the problem, the architecture, the decisions.
+      </p>
+    </div>
+  </div>
 
-    <!-- Featured -->
-    <div class="space-y-6 sm:space-y-8">
+  <!-- Featured: horizontal pinned track on desktop, vertical stack elsewhere -->
+  <div class="hs-wrap">
+    <div class="hs-track">
       {
         featured.map((p, i) => (
-          <article class="card group reveal overflow-hidden transition-colors hover:border-accent/50">
-            <a href={`/projects/${p.id}/`} class={`grid md:grid-cols-2 ${i % 2 === 1 ? 'md:[&>*:first-child]:order-2' : ''}`}>
-              <ProjectCover title={p.data.title} hue={p.data.hue} mark={p.data.mark} image={p.data.image} class="aspect-[16/10] md:aspect-auto md:min-h-[22rem]" />
-              <div class="flex flex-col p-6 sm:p-8">
-                <ProjectBadges data={p.data} />
-                <h3 class="mt-4 text-2xl font-semibold tracking-tight sm:text-[1.7rem]">{p.data.title}</h3>
+          <article class="hs-card card group" style={`--i:${i}`}>
+            <a href={`/projects/${p.id}/`} class="hs-link" data-cursor="View">
+              <div class="hs-text">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="hs-index text-outline font-mono">{pad(i + 1)}</span>
+                  <ProjectBadges data={p.data} />
+                </div>
+                <h3 class="mt-auto pt-6 text-3xl font-semibold tracking-tighter sm:text-4xl">{p.data.title}</h3>
                 <p class="mt-1 text-xs text-subtle">
                   {p.data.role} · {p.data.period}
                 </p>
-                <p class="mt-4 text-sm leading-relaxed text-muted sm:text-base">{p.data.summary}</p>
-                {p.data.highlights.length > 0 && (
-                  <ul class="mt-5 space-y-2">
-                    {p.data.highlights.slice(0, 4).map((h) => (
-                      <li class="flex gap-2.5 text-sm text-muted">
-                        <Icon name="check" size={16} class="mt-0.5 shrink-0 text-accent" />
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <ul class="mt-6 flex flex-wrap gap-1.5">
-                  {p.data.tech.slice(0, 7).map((t) => (
+                <p class="mt-4 text-sm leading-relaxed text-muted sm:text-[0.95rem]">{p.data.summary}</p>
+                <ul class="mt-5 hidden space-y-2 xl:block">
+                  {p.data.highlights.slice(0, 3).map((h) => (
+                    <li class="flex gap-2.5 text-sm text-muted">
+                      <Icon name="check" size={16} class="mt-0.5 shrink-0 text-accent" />
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
+                <ul class="mt-5 flex flex-wrap gap-1.5">
+                  {p.data.tech.slice(0, 6).map((t) => (
                     <li class="chip">{t}</li>
                   ))}
-                  {p.data.tech.length > 7 && <li class="chip">+{p.data.tech.length - 7}</li>}
                 </ul>
-                <span class="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-semibold text-accent">
+                <span class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
                   Read case study <Icon name="arrowRight" size={15} class="transition-transform group-hover:translate-x-1" />
                 </span>
               </div>
+              <ProjectCover title={p.data.title} hue={p.data.hue} mark={p.data.mark} image={p.data.image} class="hs-cover" vt={p.id} />
             </a>
           </article>
         ))
       }
-    </div>
-
-    <!-- More projects -->
-    <div class="mt-20">
-      <div class="reveal mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <h3 class="text-xl font-semibold tracking-tight sm:text-2xl">More projects</h3>
-        <div class="flex flex-wrap gap-1.5" role="group" aria-label="Filter projects">
-          <button type="button" class="filter-btn active" data-filter="all">All <span>{rest.length}</span></button>
-          {
-            categories
-              .filter((c) => counts[c] > 0)
-              .map((c) => (
-                <button type="button" class="filter-btn" data-filter={c}>
-                  {categoryLabel[c]} <span>{counts[c]}</span>
-                </button>
-              ))
-          }
-        </div>
+      <div class="hs-end" aria-hidden="true">
+        <p class="font-mono text-xs tracking-[0.2em] text-subtle uppercase">Keep scrolling</p>
+        <p class="mt-3 text-4xl font-semibold tracking-tighter">More<br /><span class="text-gradient">projects ↓</span></p>
       </div>
-
-      <ul id="project-grid" class="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-        {
-          rest.map((p) => (
-            <li data-category={p.data.category} class="reveal">
-              <a href={`/projects/${p.id}/`} class="card group flex h-full flex-col overflow-hidden transition-all hover:-translate-y-1 hover:border-accent/50">
-                <ProjectCover title={p.data.title} hue={p.data.hue} mark={p.data.mark} image={p.data.image} class="aspect-[16/8]" />
-                <div class="flex flex-1 flex-col p-5">
-                  <ProjectBadges data={p.data} />
-                  <h4 class="mt-3 text-lg font-semibold tracking-tight">{p.data.title}</h4>
-                  <p class="mt-0.5 text-xs text-subtle">{p.data.period}</p>
-                  <p class="mt-3 line-clamp-4 text-sm leading-relaxed text-muted">{p.data.summary}</p>
-                  <ul class="mt-4 flex flex-wrap gap-1.5">
-                    {p.data.tech.slice(0, 4).map((t) => (
-                      <li class="chip">{t}</li>
-                    ))}
-                  </ul>
-                  <span class="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-medium text-accent">
-                    Details <Icon name="arrowUpRight" size={14} class="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </span>
-                </div>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
     </div>
+    <div class="hs-counter font-mono" aria-hidden="true"><span class="hs-counter-n">01</span><span class="text-subtle"> / {pad(featured.length)}</span></div>
+  </div>
+
+  <!-- More projects -->
+  <div class="container-x mt-24">
+    <div class="reveal mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <h3 class="text-2xl font-semibold tracking-tight sm:text-3xl">More projects</h3>
+      <div class="flex flex-wrap gap-1.5" role="group" aria-label="Filter projects">
+        <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">All <span>{rest.length}</span></button>
+        {
+          categories
+            .filter((c) => counts[c] > 0)
+            .map((c) => (
+              <button type="button" class="filter-btn" data-filter={c} aria-pressed="false">
+                {categoryLabel[c]} <span>{counts[c]}</span>
+              </button>
+            ))
+        }
+      </div>
+    </div>
+
+    <ul id="project-grid" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        rest.map((p) => (
+          <li data-category={p.data.category} class="reveal">
+            <a href={`/projects/${p.id}/`} data-tilt="6" data-cursor="View" class="card group flex h-full flex-col overflow-hidden transition-colors hover:border-accent/50">
+              <ProjectCover title={p.data.title} hue={p.data.hue} mark={p.data.mark} image={p.data.image} class="aspect-[16/9]" vt={p.id} />
+              <div class="flex flex-1 flex-col p-5">
+                <ProjectBadges data={p.data} />
+                <h4 class="mt-3 text-lg font-semibold tracking-tight">{p.data.title}</h4>
+                <p class="mt-0.5 text-xs text-subtle">{p.data.period}</p>
+                <p class="mt-3 line-clamp-4 text-sm leading-relaxed text-muted">{p.data.summary}</p>
+                <ul class="mt-4 flex flex-wrap gap-1.5">
+                  {p.data.tech.slice(0, 4).map((t) => (
+                    <li class="chip">{t}</li>
+                  ))}
+                </ul>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
   </div>
 </section>
 
 <style>
+  /* ----- featured: stacked by default ----- */
+  .hs-track { display: flex; flex-direction: column; gap: 1.5rem; width: 100%; max-width: 72rem; margin-inline: auto; padding-inline: 1rem; }
+  @media (width >= 40rem) { .hs-track { padding-inline: 1.5rem; } }
+  .hs-link { display: grid; height: 100%; }
+  .hs-text { display: flex; flex-direction: column; padding: 1.5rem; }
+  @media (width >= 40rem) { .hs-text { padding: 2rem; } }
+  :global(.hs-cover) { aspect-ratio: 16 / 10; order: -1; }
+  @media (width >= 768px) {
+    .hs-link { grid-template-columns: 1fr 1fr; }
+    :global(.hs-cover) { aspect-ratio: auto; min-height: 24rem; order: 0; }
+  }
+  /* phones/tablets: sticky stacking cards */
+  @media (width < 1024px) {
+    .hs-card { position: sticky; top: calc(4.75rem + var(--i) * 0.6rem); transform-origin: center top; }
+    .hs-text p.text-sm { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  }
+  .hs-index { font-size: 3.2rem; font-weight: 800; line-height: 1; letter-spacing: -0.05em; }
+  .hs-end, .hs-counter { display: none; }
+
+  /* ----- featured: horizontal pinned (desktop live) ----- */
+  :global(.hs--live) .hs-wrap { height: 100vh; overflow: hidden; position: relative; display: flex; align-items: center; }
+  :global(.hs--live) .hs-track {
+    flex-direction: row;
+    width: max-content;
+    max-width: none;
+    margin: 0;
+    padding-inline: max(1.5rem, calc((100vw - 72rem) / 2 + 1.5rem));
+    gap: 2rem;
+    align-items: stretch;
+  }
+  :global(.hs--live) .hs-card { width: min(70rem, 78vw); height: min(40rem, 76vh); flex-shrink: 0; }
+  :global(.hs--live .hs-cover) { min-height: 0; height: 100%; }
+  :global(.hs--live) .hs-end { display: flex; flex-direction: column; justify-content: center; width: 22rem; flex-shrink: 0; }
+  :global(.hs--live) .hs-counter { display: block; position: absolute; left: max(1.5rem, calc((100vw - 72rem) / 2 + 1.5rem)); bottom: 1.6rem; font-size: 0.8rem; letter-spacing: 0.14em; opacity: 0; transition: opacity 0.3s; }
+  :global(.hs--live) .hs-counter.is-on { opacity: 1; }
+  .hs-counter-n { color: var(--fg); font-weight: 700; }
+
   .filter-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.35rem 0.85rem;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--fg-muted);
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.35rem 0.85rem; font-size: 0.8125rem; font-weight: 500; color: var(--fg-muted);
     transition: all 0.2s;
   }
-  .filter-btn span {
-    font-size: 0.7rem;
-    color: var(--fg-subtle);
-  }
+  .filter-btn span { font-size: 0.7rem; color: var(--fg-subtle); }
   .filter-btn:hover { color: var(--fg); }
-  .filter-btn.active {
-    background: var(--fg);
-    border-color: var(--fg);
-    color: var(--bg);
-  }
+  .filter-btn.active { background: var(--fg); border-color: var(--fg); color: var(--bg); }
   .filter-btn.active span { color: var(--bg); opacity: 0.7; }
 </style>
 
 <script>
+  import { gsap, ScrollTrigger, prefersReduced } from '../scripts/motion';
+
+  // Filters
   const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
   const items = document.querySelectorAll<HTMLLIElement>('#project-grid > li');
   buttons.forEach((b) =>
@@ -143,9 +178,56 @@ const counts = Object.fromEntries(categories.map((c) => [c, rest.filter((p) => p
         x.classList.toggle('active', x === b);
         x.setAttribute('aria-pressed', String(x === b));
       });
-      items.forEach((li) => {
-        li.hidden = f !== 'all' && li.dataset.category !== f;
-      });
+      items.forEach((li) => (li.hidden = f !== 'all' && li.dataset.category !== f));
+      ScrollTrigger.refresh();
     }),
   );
+
+  // Horizontal featured track
+  const section = document.getElementById('projects')!;
+  const desktop = window.matchMedia('(min-width: 1024px)').matches;
+  if (!desktop && !prefersReduced()) {
+    // Stacking cards: each card shrinks and dims as the next one slides over it
+    const cards = [...section.querySelectorAll<HTMLElement>('.hs-card')];
+    cards.slice(0, -1).forEach((card, i) => {
+      gsap.to(card, {
+        scale: 0.92, filter: 'brightness(0.6)', ease: 'none',
+        scrollTrigger: { trigger: cards[i + 1], start: 'top bottom', end: 'top 20%', scrub: true },
+      });
+    });
+  }
+  if (desktop && !prefersReduced()) {
+    section.classList.add('hs--live');
+    const wrap = section.querySelector<HTMLElement>('.hs-wrap')!;
+    const track = section.querySelector<HTMLElement>('.hs-track')!;
+    const counter = section.querySelector<HTMLElement>('.hs-counter-n')!;
+    const cards = [...section.querySelectorAll<HTMLElement>('.hs-card')];
+    const distance = () => track.scrollWidth - window.innerWidth;
+
+    const tween = gsap.to(track, { x: () => -distance(), ease: 'none' });
+    ScrollTrigger.create({
+      trigger: wrap,
+      start: 'top top',
+      end: () => `+=${distance()}`,
+      pin: true,
+      scrub: 0.6,
+      animation: tween,
+      invalidateOnRefresh: true,
+      toggleClass: { targets: section.querySelector('.hs-counter')!, className: 'is-on' },
+      onUpdate: (st) => {
+        const i = Math.min(cards.length - 1, Math.round(st.progress * cards.length - 0.35));
+        counter.textContent = String(Math.max(0, i) + 1).padStart(2, '0');
+      },
+    });
+
+    // Parallax the phone/cover inside each card as it crosses the screen
+    cards.forEach((card) => {
+      const phone = card.querySelector('.phone, .cover-mark');
+      if (!phone) return;
+      gsap.fromTo(phone, { yPercent: 8, rotate: 4 }, {
+        yPercent: -6, rotate: -3, ease: 'none',
+        scrollTrigger: { trigger: card, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true },
+      });
+    });
+  }
 </script>

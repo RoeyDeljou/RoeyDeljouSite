@@ -1,0 +1,367 @@
+---
+/**
+ * JOURNEY — a Prezi-style zoomable canvas of the career, driven by scroll.
+ * Desktop (≥1024px, motion allowed): the section pins and a camera flies
+ * between frames — pan, zoom, rotate, and a dive into a nested frame — with a
+ * self-drawing path and a live minimap.
+ * Mobile / reduced motion / no JS: frames render as a normal stacked timeline.
+ *
+ * Content comes from src/data/experience.ts; layout positions live in `layout` below.
+ */
+import Icon from './Icon.astro';
+import { experience } from '../data/experience';
+
+const chrono = [...experience].reverse(); // oldest → newest
+
+// World-space layout (px). One entry per role, in chronological order.
+const W = 2600, H = 1700;
+const layout = [
+  { x: 820, y: 140, rot: 3 },
+  { x: 1560, y: 420, rot: -2.5 },
+  { x: 900, y: 860, rot: 2 },
+  { x: 1800, y: 1120, rot: -3 },
+];
+const FW = 600, FH = 430;
+const intro = { x: 90, y: 560, w: 640, h: 430, rot: -4 };
+const outro = { x: 300, y: 1230, w: 520, h: 340, rot: 3 };
+// A nested "zoom-in" frame inside the Bagira card (index 2).
+const nestedHost = 2;
+const nested = (() => {
+  const scale = 0.26, w = 600, h = 380;
+  // local offset inside the host card, then rotated by the host's rotation (frames rotate about top-left)
+  const lx = FW - w * scale * 0.5, ly = FH - h * scale * 0.42; // sticks out of the card's corner like a sticky note
+  const a = (layout[nestedHost].rot * Math.PI) / 180;
+  return { scale, w, h, x: layout[nestedHost].x + lx * Math.cos(a) - ly * Math.sin(a), y: layout[nestedHost].y + lx * Math.sin(a) + ly * Math.cos(a) };
+})();
+
+const frames = [
+  { id: 'intro', ...intro },
+  ...chrono.map((_, i) => ({ id: `role-${i}`, x: layout[i].x, y: layout[i].y, w: FW, h: FH, rot: layout[i].rot })),
+];
+// Camera stops, in order: overview → intro → roles (with the nested dive after its host) → outro → overview
+const stops = [
+  { id: 'overview' },
+  { id: 'intro' },
+  ...chrono.flatMap((_, i) => (i === nestedHost ? [{ id: `role-${i}` }, { id: 'nested' }] : [{ id: `role-${i}` }])),
+  { id: 'outro' },
+  { id: 'overview' },
+];
+const centers = frames.slice(1).map((f) => [f.x + f.w / 2, f.y + f.h / 2]);
+const pathD = `M ${intro.x + intro.w / 2} ${intro.y + intro.h / 2} ` + centers.map(([x, y]) => `L ${x} ${y}`).join(' ') + ` L ${outro.x + outro.w / 2} ${outro.y + outro.h / 2}`;
+
+const geometry = {
+  W, H,
+  frames: [...frames, { id: 'nested', x: nested.x, y: nested.y, w: nested.w * nested.scale, h: nested.h * nested.scale, rot: layout[nestedHost].rot }, { id: 'outro', ...outro }],
+  stops: stops.map((s) => s.id),
+};
+const years = chrono.map((r) => r.start.match(/\d{4}/)?.[0] ?? '');
+---
+
+<section id="experience" class="journey relative">
+  <div class="container-x journey-static-head pt-20 sm:pt-28">
+    <p class="mb-3 font-mono text-xs font-medium tracking-[0.2em] text-accent uppercase">Experience</p>
+    <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl" data-split>The journey so far.</h2>
+  </div>
+
+  <div class="journey-stage">
+    <div class="journey-line" aria-hidden="true"><span></span></div>
+    <div class="journey-world" style={`--W:${W}px;--H:${H}px`} data-geometry={JSON.stringify(geometry)}>
+      <svg class="journey-path" width={W} height={H} viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+        <defs>
+          <linearGradient id="jp" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="var(--accent)" />
+            <stop offset="1" stop-color="var(--accent-2)" />
+          </linearGradient>
+        </defs>
+        <path d={pathD} class="journey-path-ghost" />
+        <path d={pathD} class="journey-path-live" stroke="url(#jp)" />
+      </svg>
+
+      <!-- Intro frame -->
+      <div class="jframe jframe-intro" data-frame="intro" style={`--x:${intro.x}px;--y:${intro.y}px;--w:${intro.w}px;--h:${intro.h}px;--r:${intro.rot}deg`}>
+        <p class="font-mono text-xs tracking-[0.2em] text-accent uppercase">Career · {years[0]} → now</p>
+        <h3 class="mt-4 text-5xl leading-[0.95] font-semibold tracking-tighter">From game engines<br /><span class="text-gradient">to production platforms.</span></h3>
+        <p class="mt-5 text-base text-muted">Four stops. One through-line: building real-time systems people actually use.</p>
+        <p class="journey-hint mt-6 inline-flex items-center gap-2 font-mono text-xs text-subtle">↓ keep scrolling to fly through it</p>
+      </div>
+
+      {
+        chrono.map((job, i) => (
+          <article class="jframe jframe-role" data-frame={`role-${i}`} style={`order:${i * 2};--x:${layout[i].x}px;--y:${layout[i].y}px;--w:${FW}px;--h:${FH}px;--r:${layout[i].rot}deg`}>
+            <span class="jframe-year text-outline" aria-hidden="true">{years[i]}</span>
+            <div class="relative">
+              <p class="font-mono text-xs text-subtle">
+                {job.start} — {job.end}
+                {job.location && <> · {job.location}</>}
+              </p>
+              <h3 class="mt-2 text-2xl font-semibold tracking-tight">{job.role}</h3>
+              <p class="text-sm font-semibold text-accent">{job.company}</p>
+              <ul class="mt-4 space-y-1.5">
+                {job.highlights.slice(0, 3).map((h) => (
+                  <li class="flex gap-2.5 text-[0.84rem] leading-snug text-muted">
+                    <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-2" />
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
+              <div class="mt-4 flex flex-wrap items-center gap-1.5">
+                {job.tech.slice(0, 5).map((t) => <span class="chip">{t}</span>)}
+                {job.projectSlug && (
+                  <a href={`/projects/${job.projectSlug}/`} class="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline" data-cursor="Open">
+                    Case study <Icon name="arrowRight" size={14} />
+                  </a>
+                )}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+
+      <!-- Nested frame (a Prezi-style dive inside the Bagira card) -->
+      <div class="jframe jframe-nested" data-frame="nested" style={`order:${nestedHost * 2 + 1};--x:${nested.x}px;--y:${nested.y}px;--w:${nested.w}px;--h:${nested.h}px;--r:${layout[nestedHost].rot}deg;--s:${nested.scale}`}>
+        <span class="jframe-zoom-badge font-mono" aria-hidden="true">⤢ zoom in</span>
+        <p class="font-mono text-xs tracking-[0.2em] text-accent-2 uppercase">Zoomed in · Bagira Systems</p>
+        <p class="mt-3 text-6xl font-semibold tracking-tighter"><span class="text-gradient">1st</span></p>
+        <p class="mt-2 text-xl font-semibold">international simulator site — in Europe.</p>
+        <p class="mt-3 text-sm text-muted">The Unity platform I led the migration to helped take the company into the European market.</p>
+      </div>
+
+      <!-- Outro frame -->
+      <div class="jframe jframe-outro" data-frame="outro" style={`order:99;--x:${outro.x}px;--y:${outro.y}px;--w:${outro.w}px;--h:${outro.h}px;--r:${outro.rot}deg`}>
+        <p class="font-mono text-xs tracking-[0.2em] text-accent uppercase">Next stop</p>
+        <h3 class="mt-3 text-4xl leading-tight font-semibold tracking-tighter">Your team?</h3>
+        <p class="mt-3 text-muted">Simulation, games, full-stack or AI engineering. Let’s talk.</p>
+        <a href="#contact" class="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 text-sm font-semibold text-accent-fg">
+          Get in touch <Icon name="arrowRight" size={15} />
+        </a>
+      </div>
+    </div>
+
+    <!-- HUD: step counter + minimap (desktop live mode only) -->
+    <div class="journey-hud" aria-hidden="true">
+      <div class="journey-step font-mono"><span class="journey-step-n">00</span><span class="text-subtle"> / {String(stops.length - 1).padStart(2, '0')}</span> <span class="journey-step-label">overview</span></div>
+      <div class="journey-minimap">
+        <div class="journey-minimap-inner"></div>
+        <div class="journey-minimap-view"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---------- Static (mobile / reduced motion / no-JS) ---------- */
+  .journey-stage { position: relative; }
+  .journey-world { position: relative; display: flex; flex-direction: column; gap: 1.25rem; width: 100%; max-width: 72rem; margin-inline: auto; padding: 2.5rem 1rem 5rem; }
+  @media (width >= 40rem) { .journey-world { padding-inline: 1.5rem; } }
+  .journey-path, .journey-hud, .jframe-intro, .jframe-zoom-badge, .journey-hint { display: none; }
+  .jframe { position: relative; border: 1px solid var(--border); background: var(--bg-elev); border-radius: 1.5rem; padding: 1.75rem; box-shadow: var(--card-shadow); overflow: hidden; }
+  .jframe-year { position: absolute; right: 1rem; top: 0.25rem; font-size: 5.5rem; font-weight: 800; letter-spacing: -0.06em; line-height: 1; opacity: 0.5; pointer-events: none; }
+  .jframe-nested { border-color: color-mix(in srgb, var(--accent-2) 45%, var(--border)); background: color-mix(in srgb, var(--accent-2) 6%, var(--bg-elev)); }
+  .jframe-nested .text-6xl { font-size: 3rem; }
+
+  /* ---------- Live (desktop zoom canvas) ---------- */
+  :global(.journey--live) .journey-static-head { display: none; }
+  :global(.journey--live) .journey-stage { height: 100vh; overflow: hidden; }
+  :global(.journey--live) .journey-world {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+    width: var(--W); height: var(--H);
+    max-width: none; padding: 0; margin: 0;
+    transform-origin: 0 0;
+  }
+  :global(.journey--live) .journey-path { display: block; position: absolute; inset: 0; overflow: visible; }
+  :global(.journey--live) .jframe {
+    position: absolute;
+    left: var(--x); top: var(--y);
+    width: var(--w); height: var(--h);
+    transform: rotate(var(--r)) scale(var(--s, 1));
+    transform-origin: 0 0;
+    padding: 2.25rem;
+    transition: border-color 0.5s, box-shadow 0.5s, opacity 0.5s;
+    opacity: 0.55;
+  }
+  :global(.journey--live) .jframe.is-active {
+    opacity: 1;
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent), 0 30px 80px -30px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  :global(.journey--live) .jframe-intro { display: block; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(6px); border-style: dashed; box-shadow: none; }
+  :global(.journey--live) .jframe-nested { z-index: 2; opacity: 0.9; box-shadow: 0 20px 60px -20px color-mix(in srgb, var(--accent-2) 60%, transparent); }
+  :global(.journey--live) .jframe-zoom-badge {
+    display: inline-block; position: absolute; right: 1.5rem; top: 1.2rem;
+    font-size: 1.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-2);
+  }
+  :global(.journey--live) .journey-hint { display: inline-flex; }
+  :global(.journey--live) .journey-hud { display: block; }
+
+  /* mobile animated timeline */
+  .journey-line { display: none; }
+  :global(.journey--mobile) .journey-line { display: block; position: absolute; top: 2.5rem; bottom: 5rem; left: 1rem; width: 2px; background: var(--border); border-radius: 2px; }
+  @media (width >= 40rem) { :global(.journey--mobile) .journey-line { left: 1.5rem; } }
+  :global(.journey--mobile) .journey-line span { display: block; height: 100%; background: linear-gradient(var(--accent), var(--accent-2)); transform-origin: top; transform: scaleY(0); box-shadow: 0 0 12px var(--accent); }
+  :global(.journey--mobile) .journey-world { padding-left: 2.25rem; }
+  @media (width >= 40rem) { :global(.journey--mobile) .journey-world { padding-left: 3rem; } }
+  :global(.journey--mobile) .jframe::before { content: ''; position: absolute; left: -1.62rem; top: 2rem; width: 12px; height: 12px; border-radius: 99px; background: var(--bg); border: 2px solid var(--accent); }
+
+  .journey-path-ghost { fill: none; stroke: var(--border); stroke-width: 2; stroke-dasharray: 6 10; }
+  .journey-path-live { fill: none; stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 0 8px var(--accent)); }
+
+  .journey-hud { position: absolute; inset: auto 1.5rem 1.5rem auto; z-index: 5; text-align: right; pointer-events: none; }
+  .journey-step { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.6rem; }
+  .journey-step-n { color: var(--fg); font-weight: 700; }
+  .journey-step-label { color: var(--accent-2); margin-left: 0.5rem; }
+  .journey-minimap { position: relative; width: 180px; height: calc(180px * 1700 / 2600); border: 1px solid var(--border); border-radius: 0.6rem; background: color-mix(in srgb, var(--bg-elev) 80%, transparent); backdrop-filter: blur(8px); overflow: hidden; margin-left: auto; }
+  .journey-minimap-inner { position: absolute; inset: 0; }
+  .journey-minimap-inner :global(i) { position: absolute; border-radius: 2px; background: color-mix(in srgb, var(--fg) 18%, transparent); transform-origin: 0 0; }
+  .journey-minimap-inner :global(i.on) { background: var(--accent); }
+  .journey-minimap-view { position: absolute; border: 1.5px solid var(--accent-2); border-radius: 2px; transform-origin: 0 0; box-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 50%, transparent); }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger, prefersReduced } from '../scripts/motion';
+
+  const section = document.querySelector<HTMLElement>('.journey')!;
+  const world = section.querySelector<HTMLElement>('.journey-world')!;
+  const geo = JSON.parse(world.dataset.geometry!) as {
+    W: number; H: number;
+    frames: { id: string; x: number; y: number; w: number; h: number; rot: number }[];
+    stops: string[];
+  };
+
+  const mq = window.matchMedia('(min-width: 1024px)');
+  if (!prefersReduced()) (mq.matches ? live : mobile)();
+
+  /** Phones/tablets: a timeline line that draws with scroll; cards swing into place. */
+  function mobile() {
+    section.classList.add('journey--mobile');
+    gsap.to(section.querySelector('.journey-line span'), {
+      scaleY: 1, ease: 'none',
+      scrollTrigger: { trigger: world, start: 'top 70%', end: 'bottom 70%', scrub: 0.4 },
+    });
+    section.querySelectorAll<HTMLElement>('.jframe').forEach((el, i) => {
+      gsap.from(el, {
+        opacity: 0, x: 28, rotate: i % 2 ? 3 : -3, scale: 0.94, transformOrigin: 'left center',
+        ease: 'power3.out', duration: 0.9,
+        scrollTrigger: { trigger: el, start: 'top 88%' },
+      });
+    });
+  }
+
+  function live() {
+    section.classList.add('journey--live');
+    const stage = section.querySelector<HTMLElement>('.journey-stage')!;
+    const path = section.querySelector<SVGPathElement>('.journey-path-live')!;
+    const stepN = section.querySelector<HTMLElement>('.journey-step-n')!;
+    const stepLabel = section.querySelector<HTMLElement>('.journey-step-label')!;
+    const mini = section.querySelector<HTMLElement>('.journey-minimap-inner')!;
+    const miniView = section.querySelector<HTMLElement>('.journey-minimap-view')!;
+    const frameEls = new Map([...section.querySelectorAll<HTMLElement>('[data-frame]')].map((el) => [el.dataset.frame!, el]));
+    const byId = new Map(geo.frames.map((f) => [f.id, f]));
+
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = `${len}`;
+    path.style.strokeDashoffset = `${len}`;
+
+    // Minimap boxes
+    const mW = mini.clientWidth || 180;
+    const mS = mW / geo.W;
+    for (const f of geo.frames) {
+      const i = document.createElement('i');
+      i.dataset.id = f.id;
+      Object.assign(i.style, { left: `${f.x * mS}px`, top: `${f.y * mS}px`, width: `${Math.max(2, f.w * mS)}px`, height: `${Math.max(2, f.h * mS)}px`, transform: `rotate(${f.rot}deg)` });
+      mini.appendChild(i);
+    }
+
+    // Rotated-frame center in world space (frames rotate about their top-left corner)
+    const center = (f: { x: number; y: number; w: number; h: number; rot: number }) => {
+      const a = (f.rot * Math.PI) / 180;
+      const cx = f.w / 2, cy = f.h / 2;
+      return { x: f.x + cx * Math.cos(a) - cy * Math.sin(a), y: f.y + cx * Math.sin(a) + cy * Math.cos(a) };
+    };
+
+    const cam = { x: geo.W / 2, y: geo.H / 2, s: 0.4, r: 0 };
+    const vw = () => stage.clientWidth, vh = () => stage.clientHeight;
+
+    const target = (id: string) => {
+      if (id === 'overview') {
+        const s = Math.min(vw() / geo.W, vh() / geo.H) * 0.92;
+        return { x: geo.W / 2, y: geo.H / 2, s, r: 0 };
+      }
+      const f = byId.get(id)!;
+      const c = center(f);
+      const s = Math.min((vw() * 0.7) / f.w, (vh() * 0.72) / f.h);
+      return { x: c.x, y: c.y, s, r: f.rot };
+    };
+
+    const apply = () => {
+      world.style.transform = `translate(${vw() / 2}px, ${vh() / 2}px) scale(${cam.s}) rotate(${-cam.r}deg) translate(${-cam.x}px, ${-cam.y}px)`;
+      // minimap viewport (ignores rotation for readability)
+      const w = vw() / cam.s, h = vh() / cam.s;
+      Object.assign(miniView.style, { left: `${(cam.x - w / 2) * mS}px`, top: `${(cam.y - h / 2) * mS}px`, width: `${w * mS}px`, height: `${h * mS}px` });
+    };
+
+    Object.assign(cam, target('overview'));
+    apply();
+
+    const labelFor = (id: string) => {
+      if (id === 'overview') return 'overview';
+      if (id === 'intro') return 'start';
+      if (id === 'outro') return 'next stop';
+      if (id === 'nested') return 'zoom · europe';
+      const el = frameEls.get(id);
+      return el?.querySelector('.text-accent')?.textContent ?? id;
+    };
+
+    let activeIdx = -1;
+    const setActive = (idx: number) => {
+      if (idx === activeIdx) return;
+      activeIdx = idx;
+      const id = geo.stops[idx];
+      frameEls.forEach((el, k) => el.classList.toggle('is-active', k === id || (id === 'overview')));
+      mini.querySelectorAll('i').forEach((i) => i.classList.toggle('on', (i as HTMLElement).dataset.id === id));
+      stepN.textContent = String(idx).padStart(2, '0');
+      stepLabel.textContent = labelFor(id);
+    };
+    setActive(0);
+
+    // Build the camera timeline: move (1) + hold (0.55) per stop
+    const tl = gsap.timeline({ defaults: { ease: 'power2.inOut' }, onUpdate: apply });
+    const times: number[] = [0];
+    geo.stops.slice(1).forEach((id) => {
+      tl.to(cam, { ...target(id), duration: 1 });
+      tl.to({}, { duration: 0.55 });
+      times.push(tl.duration() - 0.55);
+    });
+    tl.to(path, { strokeDashoffset: 0, ease: 'none', duration: tl.duration() * 0.9 }, 0.2);
+
+    ScrollTrigger.create({
+      trigger: stage,
+      start: 'top top',
+      end: () => `+=${geo.stops.length * window.innerHeight * 0.85}`,
+      pin: true,
+      scrub: 0.8,
+      animation: tl,
+      invalidateOnRefresh: true,
+      onUpdate: () => {
+        const t = tl.time();
+        let best = 0;
+        times.forEach((tt, i) => { if (Math.abs(tt - t) < Math.abs(times[best] - t)) best = i; });
+        setActive(best);
+      },
+    });
+
+    // Recompute targets on resize
+    ScrollTrigger.addEventListener('refreshInit', () => {
+      let k = 0;
+      tl.getChildren(false, true, false).forEach((child) => {
+        const tw = child as gsap.core.Tween;
+        if (tw.targets()[0] === cam) {
+          const id = geo.stops[++k];
+          tw.vars.x = target(id).x; tw.vars.y = target(id).y; tw.vars.s = target(id).s; tw.vars.r = target(id).r;
+          tw.invalidate();
+        }
+      });
+    });
+  }
+</script>

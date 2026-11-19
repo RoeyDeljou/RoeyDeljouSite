@@ -1,0 +1,41 @@
+---
+/** Tilted double marquee band between sections. */
+const a = ['Unity 3D', 'C#', 'TypeScript', 'Next.js', 'Real-time Simulation', 'Claude Code', 'Fastify', 'Python', 'Socket.IO', 'PostgreSQL', 'AI Agents', 'WebGL'];
+const b = ['Ship fast', 'Simulate everything', 'Build with agents', 'Production-grade', 'Games & PWAs', 'Zero-touch automation'];
+---
+
+<div class="band relative isolate my-6 select-none" aria-hidden="true">
+  <div class="band-strip band-a">
+    <div class="marquee" style="--marquee-speed:40s">
+      {[0, 1].map(() => (
+        <div class="marquee-track">
+          {a.map((t) => (
+            <span class="flex items-center gap-10 text-lg font-semibold tracking-tight sm:text-2xl">
+              {t}<span class="text-accent-fg/60">✦</span>
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+  <div class="band-strip band-b">
+    <div class="marquee marquee-reverse" style="--marquee-speed:50s">
+      {[0, 1].map(() => (
+        <div class="marquee-track">
+          {b.map((t) => (
+            <span class="flex items-center gap-10 font-mono text-sm tracking-[0.15em] uppercase sm:text-base">
+              {t}<span class="text-accent">/</span>
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .band { padding-block: 3.5rem; overflow: hidden; }
+  .band-strip { width: 110%; margin-left: -5%; padding-block: 0.9rem; }
+  .band-a { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: var(--accent-fg); transform: rotate(-2.5deg); position: relative; z-index: 1; }
+  .band-b { background: var(--bg-elev); border-block: 1px solid var(--border); color: var(--fg-muted); transform: rotate(2deg); margin-top: -0.6rem; }
+</style>

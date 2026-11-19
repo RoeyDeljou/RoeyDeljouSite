@@ -1,0 +1,100 @@
+---
+/**
+ * Boot-sequence intro, styled like a game engine loading a scene.
+ * Shown once per browser session, skippable (click / any key), and never
+ * shown with reduced motion. Total ~1.9s.
+ */
+---
+
+<div id="intro" class="intro no-print" aria-hidden="true">
+  <div class="intro-inner">
+    <div class="intro-lines font-mono">
+      <p><span class="ok">✓</span> loading <b>roey.exe</b></p>
+      <p><span class="ok">✓</span> compiling shaders · unity · c# · typescript</p>
+      <p><span class="ok">✓</span> spawning 5,200 particles</p>
+      <p><span class="ok">✓</span> linking ai agents · claude · cursor · codex</p>
+      <p class="intro-ready">▶ scene ready</p>
+    </div>
+    <div class="intro-meter">
+      <span class="intro-pct font-mono">0</span>
+      <div class="intro-track"><div class="intro-fill"></div></div>
+    </div>
+  </div>
+  <div class="intro-panel intro-panel-a"></div>
+  <div class="intro-panel intro-panel-b"></div>
+  <button type="button" class="intro-skip font-mono">skip ↵</button>
+</div>
+
+<script is:inline>
+  (function () {
+    var el = document.getElementById('intro');
+    if (!el) return;
+    var seen = false;
+    try { seen = sessionStorage.getItem('introSeen') === '1'; } catch (e) {}
+    if (seen || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.remove(); return; }
+    document.documentElement.classList.add('intro-active');
+  })();
+</script>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const el = document.getElementById('intro');
+  if (el && document.documentElement.classList.contains('intro-active')) {
+    try { sessionStorage.setItem('introSeen', '1'); } catch {}
+    const pct = el.querySelector<HTMLElement>('.intro-pct')!;
+    const counter = { v: 0 };
+    const finish = () => {
+      document.documentElement.classList.remove('intro-active');
+      el.remove();
+      window.dispatchEvent(new Event('intro:done'));
+    };
+    const tl = gsap.timeline({ onComplete: finish });
+    tl.from(el.querySelectorAll('.intro-lines p'), { opacity: 0, x: -12, stagger: 0.16, duration: 0.3, ease: 'power2.out' }, 0)
+      .to(counter, { v: 100, duration: 1.15, ease: 'power2.inOut', onUpdate: () => (pct.textContent = String(Math.round(counter.v)).padStart(3, '0')) }, 0)
+      .to(el.querySelector('.intro-fill'), { scaleX: 1, duration: 1.15, ease: 'power2.inOut' }, 0)
+      .to(el.querySelector('.intro-inner'), { opacity: 0, y: -20, duration: 0.3, ease: 'power2.in' }, 1.25)
+      .to(el.querySelector('.intro-skip'), { opacity: 0, duration: 0.2 }, 1.25)
+      .to(el, { backgroundColor: 'transparent', duration: 0.01 }, 1.5)
+      .to(el.querySelector('.intro-panel-a'), { yPercent: -100, duration: 0.6, ease: 'expo.inOut' }, 1.45)
+      .to(el.querySelector('.intro-panel-b'), { yPercent: 100, duration: 0.6, ease: 'expo.inOut' }, 1.45);
+    const skip = () => tl.progress(1);
+    el.addEventListener('click', skip);
+    window.addEventListener('keydown', skip, { once: true });
+  } else {
+    window.dispatchEvent(new Event('intro:done'));
+  }
+</script>
+
+<style>
+  .intro {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    cursor: pointer;
+  }
+  .intro-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 50.5%;
+    background: var(--bg);
+    z-index: -1;
+  }
+  .intro-panel-a { top: 0; }
+  .intro-panel-b { bottom: 0; }
+  .intro-inner { width: min(30rem, 86vw); }
+  .intro-lines { font-size: 0.8rem; line-height: 1.9; color: var(--fg-subtle); }
+  .intro-lines b { color: var(--fg); font-weight: 600; }
+  .intro-lines .ok { color: var(--accent-2); margin-right: 0.5rem; }
+  .intro-ready { color: var(--accent) !important; margin-top: 0.4rem; }
+  .intro-meter { margin-top: 1.6rem; display: flex; align-items: center; gap: 1rem; }
+  .intro-pct { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.04em; min-width: 4.2ch; color: var(--fg); }
+  .intro-track { flex: 1; height: 2px; background: var(--border); overflow: hidden; }
+  .intro-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transform: scaleX(0); transform-origin: left; }
+  .intro-skip { position: absolute; bottom: 1.5rem; right: 1.5rem; font-size: 0.75rem; color: var(--fg-subtle); }
+  :global(html.intro-active) { overflow: hidden; }
+</style>

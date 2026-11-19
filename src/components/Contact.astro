@@ -3,19 +3,32 @@ import Icon from './Icon.astro';
 import { profile } from '../data/profile';
 ---
 
-<section id="contact" class="py-20 sm:py-28">
+<section id="contact" class="overflow-hidden py-20 sm:py-28">
+  <div class="mb-12 sm:mb-16" aria-hidden="true">
+    <div class="marquee" style="--marquee-speed:28s">
+      {[0, 1].map(() => (
+        <div class="marquee-track !gap-8 !pr-8">
+          {["Let’s build", "something", "memorable"].map((w, i) => (
+            <span class={`flex items-center gap-8 text-[clamp(3.5rem,11vw,9rem)] leading-none font-semibold tracking-tighter ${i % 2 ? 'text-outline' : ''}`}>
+              {w}<span class="text-gradient text-[0.5em]">✦</span>
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
   <div class="container-x">
     <div class="card reveal relative overflow-hidden px-6 py-14 text-center sm:px-12 sm:py-20">
       <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_80%_at_50%_0%,var(--glow),transparent_70%)]"></div>
       <div class="relative mx-auto max-w-2xl">
         <p class="mb-3 font-mono text-xs font-medium tracking-[0.2em] text-accent uppercase">Contact</p>
-        <h2 class="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">Let’s build something great together.</h2>
+        <h2 class="text-3xl font-semibold tracking-tight text-balance sm:text-5xl" data-split>Let’s build something great together.</h2>
         <p class="mt-5 text-base leading-relaxed text-muted sm:text-lg">
           I’m open to full-time roles in game & simulation development, full-stack engineering and AI engineering. The fastest way to reach me is email.
         </p>
 
         <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a href={`mailto:${profile.email}`} class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3.5 text-sm font-semibold text-accent-fg shadow-lg shadow-accent/25 transition-transform hover:-translate-y-0.5 sm:w-auto">
+          <a href={`mailto:${profile.email}`} data-magnetic class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3.5 text-sm font-semibold text-accent-fg shadow-lg shadow-accent/25 transition-transform hover:-translate-y-0.5 sm:w-auto">
             <Icon name="mail" size={17} /> {profile.email}
           </a>
           <button id="copy-email" type="button" data-email={profile.email} class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line bg-elev px-5 py-3.5 text-sm font-semibold transition-colors hover:border-accent sm:w-auto">

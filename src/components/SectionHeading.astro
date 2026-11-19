@@ -7,8 +7,8 @@ interface Props {
 const { eyebrow, title, subtitle } = Astro.props;
 ---
 
-<div class="reveal mb-10 max-w-2xl sm:mb-14">
+<div class="mb-10 max-w-2xl sm:mb-14">
   <p class="mb-3 font-mono text-xs font-medium tracking-[0.2em] text-accent uppercase">{eyebrow}</p>
-  <h2 class="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{title}</h2>
-  {subtitle && <p class="mt-4 text-base leading-relaxed text-muted sm:text-lg">{subtitle}</p>}
+  <h2 class="text-4xl font-semibold tracking-tighter text-balance sm:text-6xl" data-split>{title}</h2>
+  {subtitle && <p class="reveal mt-4 text-base leading-relaxed text-muted sm:text-lg">{subtitle}</p>}
 </div>

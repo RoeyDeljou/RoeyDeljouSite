@@ -4,19 +4,22 @@ import '@fontsource-variable/jetbrains-mono';
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import Intro from '../components/Intro.astro';
 import { profile } from '../data/profile';
 
 interface Props {
   title?: string;
   description?: string;
-  /** Hide the main nav section links (e.g. on sub-pages they become absolute). */
   image?: string;
+  /** Show the boot-sequence intro (home page only). */
+  intro?: boolean;
 }
 
 const {
   title = `${profile.name} — ${profile.title}`,
   description = profile.tagline,
   image = '/og-image.png',
+  intro = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -72,15 +75,23 @@ const personLd = {
     </script>
   </head>
   <body class="min-h-screen">
-    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-fg">Skip to content</a>
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-fg">Skip to content</a>
+    {intro && <Intro />}
+    <div id="scroll-progress" class="no-print" aria-hidden="true"></div>
     <Nav />
     <main id="main">
       <slot />
     </main>
     <Footer />
 
+    <div class="grain no-print" aria-hidden="true"></div>
+    <div id="cursor-dot" class="no-print" aria-hidden="true"></div>
+    <div id="cursor-ring" class="no-print" aria-hidden="true"><span id="cursor-label"></span></div>
+
     <script>
-      // Reveal-on-scroll
+      import { initMotion } from '../scripts/motion';
+
+      // Reveal-on-scroll (works with or without the motion layer)
       const io = new IntersectionObserver(
         (entries) => {
           for (const e of entries) {
@@ -93,6 +104,8 @@ const personLd = {
         { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
       );
       document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+      initMotion();
     </script>
   </body>
 </html>

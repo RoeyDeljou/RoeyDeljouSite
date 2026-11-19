@@ -11,13 +11,15 @@ interface Props {
   image?: string;
   class?: string;
   size?: 'md' | 'lg';
+  /** View-transition name, so the cover morphs into the case-study page. */
+  vt?: string;
 }
-const { title, hue, mark, image, class: cls = '', size = 'md' } = Astro.props;
+const { title, hue, mark, image, class: cls = '', size = 'md', vt } = Astro.props;
 const h2 = (hue + 48) % 360;
 const label = mark ?? title.slice(0, 2).toUpperCase();
 ---
 
-<div class={`cover relative overflow-hidden ${cls}`} style={`--h1:${hue};--h2:${h2}`} role="img" aria-label={image ? `${title} app screenshot` : `${title} cover art`}>
+<div class={`cover relative overflow-hidden ${cls}`} style={`--h1:${hue};--h2:${h2};${vt ? `view-transition-name:cover-${vt};` : ''}`} role="img" aria-label={image ? `${title} app screenshot` : `${title} cover art`}>
   <div class="cover-grid absolute inset-0"></div>
   <div class="cover-orb cover-orb-a absolute"></div>
   <div class="cover-orb cover-orb-b absolute"></div>
