@@ -23,14 +23,16 @@ export const experience: Role[] = [
     start: '2026',
     end: 'Present',
     summary:
-      'Designing, building and operating production web platforms and AI automation for clients and my own products — end to end, from architecture to deployment.',
+      'Designing, building and operating production web platforms and AI automation for clients and my own products — end to end, from architecture to deployment — with AI agents embedded in every stage of the engineering workflow.',
     highlights: [
-      'Built Fantasyonerim, the official app of an Israeli Fantasy Premier League podcast: a TypeScript monorepo (Fastify, Prisma/Postgres, Next.js PWA) with automated content ingestion, a live-points engine, web push and an admin console.',
-      'Built PostPublisher, an autonomous LinkedIn content engine — AI copywriting, AI imagery, narrated video generation and scheduled publishing on GitHub Actions.',
+      'Built Fantasyonerim, the official app of an Israeli Fantasy Premier League podcast: a TypeScript monorepo (Fastify, Prisma/Postgres, Next.js PWA) with zero-touch content ingestion from six platforms, a live FPL points engine, web push and a full admin console — live in production.',
+      'Built HR Finder: share a LinkedIn job to the app and get the company’s current HR and talent people, fused from six search sources, each with a personalised AI-written Hebrew message.',
+      'Built PostPublisher, an autonomous LinkedIn content engine — multi-agent copywriting, AI imagery, narrated video generation and scheduled publishing on GitHub Actions.',
       'Shipped real-time multiplayer, data-aggregation and sports-prediction apps across React, Next.js, Fastify, Socket.IO, Python/FastAPI and Base44.',
-      'Run AI agents (Claude Code, Cursor, Codex) as a structured engineering workflow: specs, shared contracts, test gates and code review.',
+      'Applied Cursor, Claude Code and OpenAI Codex extensively in end-to-end development — AI agents for code generation, debugging, workflow automation and custom productivity tooling — to accelerate delivery, raise code quality and streamline engineering workflows.',
+      'Run agents as a disciplined engineering process: written specs and shared contracts first, specialised agents for exploration, planning and implementation, then type checks, automated tests and review gates before anything ships.',
     ],
-    tech: ['TypeScript', 'Next.js', 'Fastify', 'Prisma', 'PostgreSQL', 'Python', 'Claude API', 'Vercel', 'Render'],
+    tech: ['TypeScript', 'Next.js', 'Fastify', 'Prisma', 'PostgreSQL', 'Python', 'Claude API', 'Claude Code', 'Cursor', 'Codex', 'Vercel'],
     projectSlug: 'fantasyonerim',
   },
   {

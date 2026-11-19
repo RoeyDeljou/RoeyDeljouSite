@@ -14,6 +14,8 @@ highlights:
   - Live World Cup fixtures and player data from API-Football
   - Achievements and head-to-head rivalries
 repoPrivate: true
+demo: https://complex-fantasy-pro-play.base44.app
+image: /projects/fantasy-pro-league.webp
 hue: 200
 mark: FPL
 ---

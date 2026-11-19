@@ -16,6 +16,8 @@ metrics:
   - { value: '12+', label: 'sources aggregated' }
   - { value: '2×', label: 'automatic scans per day' }
 repo: https://github.com/RoeyDeljou/HackatonFinder
+demo: https://hackaton-finder.vercel.app
+image: /projects/hackathon-finder.webp
 hue: 280
 mark: HF
 ---

@@ -35,7 +35,7 @@ export const profile = {
   /** Quick-fact tiles in the About section. Keep to 4. */
   stats: [
     { value: '4+', label: 'Years building software professionally' },
-    { value: '15+', label: 'Products shipped — games, simulators, PWAs, AI tools' },
+    { value: '14', label: 'Products shipped — simulators, games, PWAs, AI tools' },
     { value: '1st', label: 'International simulator site — delivered at Bagira' },
     { value: '94K', label: 'Lines of TypeScript in my largest solo client app' },
   ],

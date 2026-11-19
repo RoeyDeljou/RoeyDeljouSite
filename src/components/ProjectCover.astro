@@ -1,7 +1,8 @@
 ---
 /**
- * Cover art for a project. Uses `image` if provided, otherwise renders
- * generative gradient art from the project's `hue` and `mark`.
+ * Cover art for a project: generative gradient art from the project's `hue`.
+ * If `image` (a portrait mobile screenshot) is set, it is shown inside a phone
+ * mockup over the gradient; otherwise the `mark` monogram is shown.
  */
 interface Props {
   title: string;
@@ -16,27 +17,22 @@ const h2 = (hue + 48) % 360;
 const label = mark ?? title.slice(0, 2).toUpperCase();
 ---
 
-{
-  image ? (
-    <div class={`relative overflow-hidden ${cls}`}>
-      <img src={image} alt={`${title} screenshot`} loading="lazy" decoding="async" class="h-full w-full object-cover" />
-    </div>
-  ) : (
-    <div
-      class={`cover relative overflow-hidden ${cls}`}
-      style={`--h1:${hue};--h2:${h2}`}
-      role="img"
-      aria-label={`${title} cover art`}
-    >
-      <div class="cover-grid absolute inset-0" />
-      <div class="cover-orb cover-orb-a absolute" />
-      <div class="cover-orb cover-orb-b absolute" />
+<div class={`cover relative overflow-hidden ${cls}`} style={`--h1:${hue};--h2:${h2}`} role="img" aria-label={image ? `${title} app screenshot` : `${title} cover art`}>
+  <div class="cover-grid absolute inset-0"></div>
+  <div class="cover-orb cover-orb-a absolute"></div>
+  <div class="cover-orb cover-orb-b absolute"></div>
+  {
+    image ? (
+      <div class={`phone absolute left-1/2 -translate-x-1/2 ${size === 'lg' ? 'phone-lg' : ''}`}>
+        <img src={image} alt="" loading="lazy" decoding="async" width="540" height="1169" />
+      </div>
+    ) : (
       <div class="absolute inset-0 grid place-items-center">
         <span class={`cover-mark font-mono font-bold tracking-tight ${size === 'lg' ? 'text-6xl sm:text-8xl' : 'text-4xl sm:text-5xl'}`}>{label}</span>
       </div>
-    </div>
-  )
-}
+    )
+  }
+</div>
 
 <style>
   .cover {
@@ -91,6 +87,37 @@ const label = mark ?? title.slice(0, 2).toUpperCase();
     color: hsl(var(--h1) 60% 22% / 0.9);
     text-shadow: none;
   }
+
+  /* Phone mockup: anchored near the top, bleeding off the bottom edge. */
+  .phone {
+    top: 9%;
+    width: min(46%, 15rem);
+    aspect-ratio: 390 / 844;
+    padding: 6px;
+    border-radius: 2rem;
+    background: #0b0c14;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.12),
+      0 30px 60px -20px rgb(0 0 0 / 0.65),
+      0 0 50px -10px hsl(var(--h1) 90% 60% / 0.45);
+    transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .phone-lg {
+    width: min(34%, 17rem);
+    top: 8%;
+  }
+  .phone img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 1.6rem;
+  }
   :global(.group:hover) .cover-orb-a { transform: translate(-12%, 10%) scale(1.1); }
   :global(.group:hover) .cover-orb-b { transform: translate(14%, -8%) scale(1.1); }
+  :global(.group:hover) .phone { transform: translateY(-4%); }
+  @media (prefers-reduced-motion: reduce) {
+    .phone, .cover-orb { transition: none; }
+  }
 </style>

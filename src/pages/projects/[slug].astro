@@ -41,6 +41,13 @@ const { Content } = await render(project);
               )
             }
             {
+              data.links.map((l) => (
+                <a href={l.url} target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full border border-line bg-elev px-5 py-2.5 text-sm font-semibold hover:border-accent">
+                  {l.label} <Icon name="external" size={15} />
+                </a>
+              ))
+            }
+            {
               data.repo && (
                 <a href={data.repo} target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full border border-line bg-elev px-5 py-2.5 text-sm font-semibold hover:border-accent">
                   <Icon name="github" size={16} /> View source

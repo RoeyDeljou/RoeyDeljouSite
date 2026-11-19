@@ -19,6 +19,7 @@ metrics:
   - { value: '4 wks', label: 'from first commit to live' }
 repo: https://github.com/RoeyDeljou/Fantasyonerim
 demo: https://fantasyonerim.vercel.app
+image: /projects/fantasyonerim.webp
 hue: 152
 mark: FPL
 ---

@@ -33,13 +33,15 @@ const projects = defineCollection({
     /** true → shows a "Private repository" badge instead of a GitHub link. */
     repoPrivate: z.boolean().default(false),
     demo: z.string().url().optional(),
+    /** Extra links shown on the project page, e.g. a second live version. */
+    links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
     /** e.g. 'Base44', 'Unity' — shown as a badge. */
     platform: z.string().optional(),
     company: z.string().optional(),
     collaborators: z.array(z.object({ name: z.string(), url: z.string().url().optional() })).default([]),
     /** Hue (0–360) for the generated cover art when there is no image. */
     hue: z.number().min(0).max(360).default(250),
-    /** Optional screenshot in /public, e.g. '/projects/fantasyonerim.png'. */
+    /** Optional MOBILE screenshot in /public (portrait, ~390px wide), shown in a phone mockup over the cover art. */
     image: z.string().optional(),
     /** Short label for cover art, e.g. an emoji-free monogram like 'FPL'. */
     mark: z.string().optional(),

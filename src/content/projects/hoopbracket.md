@@ -14,6 +14,8 @@ highlights:
   - Group chat with mentions, typing indicators and unread counts
   - Event-driven push notifications for deadlines and big moments
 repoPrivate: true
+demo: https://graceful-hoop-bracket-pro.base44.app
+image: /projects/hoopbracket.webp
 hue: 18
 mark: HB
 ---

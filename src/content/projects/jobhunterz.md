@@ -14,6 +14,10 @@ highlights:
   - WhatsApp job-group ingestion via webhook
   - Installable iPhone PWA with application tracker
 repo: https://github.com/RoeyDeljou/jobhunterz-web
+demo: https://nimble-job-hunt-go.base44.app
+links:
+  - { label: 'React PWA version', url: 'https://jobhunterz-web.vercel.app' }
+image: /projects/jobhunterz.webp
 hue: 230
 mark: JH
 ---

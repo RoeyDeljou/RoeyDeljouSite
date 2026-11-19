@@ -18,6 +18,8 @@ metrics:
   - { value: '114', label: 'test suites' }
   - { value: '67K', label: 'lines of TypeScript' }
 repo: https://github.com/RoeyDeljou/football-drinking-game
+demo: https://football-drinking-game-web.vercel.app
+image: /projects/football-drinking-game.webp
 hue: 28
 mark: FDG
 ---
