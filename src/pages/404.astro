@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<Base title="Page not found — Roey Deljou">
+  <section class="relative isolate grid min-h-[80vh] place-items-center overflow-hidden px-4 text-center">
+    <div class="hero-bg -z-10"></div>
+    <div>
+      <p class="text-gradient font-mono text-7xl font-bold sm:text-9xl">404</p>
+      <h1 class="mt-4 text-2xl font-semibold tracking-tight">This page went out of bounds.</h1>
+      <p class="mt-2 text-muted">The link may be broken, or the page may have moved.</p>
+      <a href="/" class="mt-8 inline-flex items-center gap-2 rounded-full bg-fg px-6 py-3 text-sm font-semibold text-bg">
+        <Icon name="arrowLeft" size={16} /> Back home
+      </a>
+    </div>
+  </section>
+</Base>

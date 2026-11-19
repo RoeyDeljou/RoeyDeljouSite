@@ -1,0 +1,124 @@
+---
+import Icon from './Icon.astro';
+import { profile } from '../data/profile';
+
+const links = [
+  { href: '/#about', label: 'About', id: 'about' },
+  { href: '/#experience', label: 'Experience', id: 'experience' },
+  { href: '/#projects', label: 'Projects', id: 'projects' },
+  { href: '/#skills', label: 'Skills', id: 'skills' },
+  { href: '/#contact', label: 'Contact', id: 'contact' },
+];
+---
+
+<header id="site-nav" class="no-print fixed inset-x-0 top-0 z-40 transition-all duration-300">
+  <nav class="container-x flex h-16 items-center justify-between gap-4" aria-label="Main">
+    <a href="/" class="group flex items-center gap-2.5 font-semibold tracking-tight">
+      <span class="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-accent to-accent-2 font-mono text-sm font-bold text-accent-fg shadow-lg shadow-accent/20">RD</span>
+      <span class="hidden sm:inline">{profile.name}</span>
+    </a>
+
+    <ul class="hidden items-center gap-1 md:flex">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} data-section={l.id} class="nav-link rounded-full px-3.5 py-1.5 text-sm text-muted transition-colors hover:text-fg">
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="flex items-center gap-2">
+      <button id="theme-toggle" type="button" class="grid h-9 w-9 place-items-center rounded-full border border-line text-muted transition-colors hover:text-fg" aria-label="Toggle color theme">
+        <span class="theme-icon-sun"><Icon name="sun" /></span>
+        <span class="theme-icon-moon"><Icon name="moon" /></span>
+      </button>
+      <a href={profile.resumePdf} download class="hidden items-center gap-1.5 rounded-full bg-fg px-4 py-2 text-sm font-medium text-bg transition-opacity hover:opacity-85 sm:inline-flex">
+        <Icon name="download" size={15} /> Resume
+      </a>
+      <button id="menu-toggle" type="button" class="grid h-9 w-9 place-items-center rounded-full border border-line text-muted md:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+        <Icon name="menu" />
+      </button>
+    </div>
+  </nav>
+
+  <div id="mobile-menu" class="hidden border-t border-line bg-bg/95 backdrop-blur-xl md:hidden">
+    <ul class="container-x flex flex-col py-3">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} class="mobile-link block rounded-lg px-2 py-3 text-base text-muted hover:text-fg">
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href={profile.resumePdf} download class="mt-2 flex items-center justify-center gap-2 rounded-full bg-fg px-4 py-3 text-sm font-medium text-bg">
+          <Icon name="download" size={15} /> Download resume
+        </a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<style>
+  #site-nav.scrolled {
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: saturate(160%) blur(16px);
+    -webkit-backdrop-filter: saturate(160%) blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-link.active {
+    color: var(--fg);
+    background: var(--bg-soft);
+  }
+  .theme-icon-sun, .theme-icon-moon { display: none; }
+  :global([data-theme='dark']) .theme-icon-sun { display: block; }
+  :global([data-theme='light']) .theme-icon-moon { display: block; }
+</style>
+
+<script>
+  const nav = document.getElementById('site-nav')!;
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Theme toggle
+  document.getElementById('theme-toggle')!.addEventListener('click', () => {
+    const d = document.documentElement;
+    const next = d.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    d.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch {}
+  });
+
+  // Mobile menu
+  const btn = document.getElementById('menu-toggle')!;
+  const menu = document.getElementById('mobile-menu')!;
+  const setOpen = (open: boolean) => {
+    menu.classList.toggle('hidden', !open);
+    btn.setAttribute('aria-expanded', String(open));
+    nav.classList.toggle('scrolled', open || window.scrollY > 8);
+  };
+  btn.addEventListener('click', () => setOpen(menu.classList.contains('hidden')));
+  menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+
+  // Active section highlight
+  const links = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
+  const sections = [...links].map((l) => document.getElementById(l.dataset.section!)).filter(Boolean) as HTMLElement[];
+  if (sections.length) {
+    const spy = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.toggle('active', l.dataset.section === e.target.id));
+          }
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    sections.forEach((s) => spy.observe(s));
+  }
+</script>

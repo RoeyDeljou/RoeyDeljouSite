@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+import { skills } from '../data/skills';
+import { education } from '../data/education';
+import { getProjects } from '../lib/projects';
+
+const selected = (await getProjects()).filter((p) => p.data.featured && p.data.category !== 'work');
+---
+
+<Base title={`Resume — ${profile.name}`} description={`Resume of ${profile.name}: ${profile.title}.`}>
+  <div class="pt-28 pb-20 sm:pt-32">
+    <div class="container-x max-w-4xl">
+      <div class="no-print mb-8 flex flex-wrap items-center justify-between gap-3">
+        <a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-fg"><Icon name="arrowLeft" size={15} /> Home</a>
+        <div class="flex gap-2">
+          <button onclick="window.print()" class="inline-flex items-center gap-2 rounded-full border border-line bg-elev px-4 py-2 text-sm font-medium hover:border-accent">
+            <Icon name="printer" size={15} /> Print
+          </button>
+          <a href={profile.resumePdf} download class="inline-flex items-center gap-2 rounded-full bg-fg px-4 py-2 text-sm font-medium text-bg">
+            <Icon name="download" size={15} /> PDF
+          </a>
+        </div>
+      </div>
+
+      <div class="card p-6 sm:p-12">
+        <header class="border-b border-line pb-6">
+          <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">{profile.name}</h1>
+          <p class="mt-1 text-accent">{profile.title}</p>
+          <p class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
+            <span>{profile.location}</span>
+            <a href={`mailto:${profile.email}`} class="hover:text-fg">{profile.email}</a>
+            <a href={profile.socials.linkedin} class="hover:text-fg">LinkedIn</a>
+            <a href={profile.socials.github} class="hover:text-fg">GitHub</a>
+            <span>{profile.languages.join(' · ')}</span>
+          </p>
+        </header>
+
+        <section class="mt-8">
+          <h2 class="mb-4 font-mono text-xs font-semibold tracking-[0.2em] text-accent uppercase">Experience</h2>
+          <div class="space-y-7">
+            {
+              experience.map((j) => (
+                <div class="break-inside-avoid">
+                  <div class="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline">
+                    <h3 class="font-semibold">
+                      {j.role} <span class="font-normal text-muted">· {j.company}</span>
+                    </h3>
+                    <span class="font-mono text-xs text-subtle">
+                      {j.start} — {j.end}
+                    </span>
+                  </div>
+                  <ul class="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted marker:text-accent">
+                    {j.highlights.map((h) => (
+                      <li>{h}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+
+        <section class="mt-10 break-inside-avoid">
+          <h2 class="mb-4 font-mono text-xs font-semibold tracking-[0.2em] text-accent uppercase">Selected projects</h2>
+          <ul class="space-y-3 text-sm">
+            {
+              selected.map((p) => (
+                <li>
+                  <a href={`/projects/${p.id}/`} class="font-semibold hover:text-accent">{p.data.title}</a>
+                  <span class="text-muted"> — {p.data.summary}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <section class="mt-10 break-inside-avoid">
+          <h2 class="mb-4 font-mono text-xs font-semibold tracking-[0.2em] text-accent uppercase">Skills</h2>
+          <dl class="space-y-2 text-sm">
+            {
+              skills.map((g) => (
+                <div class="grid gap-1 sm:grid-cols-[11rem_1fr]">
+                  <dt class="font-semibold">{g.category}</dt>
+                  <dd class="text-muted">{g.items.join(', ')}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+
+        <section class="mt-10 break-inside-avoid">
+          <h2 class="mb-4 font-mono text-xs font-semibold tracking-[0.2em] text-accent uppercase">Education</h2>
+          <ul class="space-y-2 text-sm">
+            {
+              education.map((e) => (
+                <li class="flex flex-col justify-between gap-1 sm:flex-row">
+                  <span>
+                    <span class="font-semibold">{e.title}</span> <span class="text-muted">· {e.school}</span>
+                  </span>
+                  {e.period && <span class="font-mono text-xs text-subtle">{e.period}</span>}
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</Base>

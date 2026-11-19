@@ -1,0 +1,50 @@
+---
+import Icon from './Icon.astro';
+import { profile } from '../data/profile';
+---
+
+<section id="contact" class="py-20 sm:py-28">
+  <div class="container-x">
+    <div class="card reveal relative overflow-hidden px-6 py-14 text-center sm:px-12 sm:py-20">
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_80%_at_50%_0%,var(--glow),transparent_70%)]"></div>
+      <div class="relative mx-auto max-w-2xl">
+        <p class="mb-3 font-mono text-xs font-medium tracking-[0.2em] text-accent uppercase">Contact</p>
+        <h2 class="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">Let’s build something great together.</h2>
+        <p class="mt-5 text-base leading-relaxed text-muted sm:text-lg">
+          I’m open to full-time roles in game & simulation development, full-stack engineering and AI engineering. The fastest way to reach me is email.
+        </p>
+
+        <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a href={`mailto:${profile.email}`} class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3.5 text-sm font-semibold text-accent-fg shadow-lg shadow-accent/25 transition-transform hover:-translate-y-0.5 sm:w-auto">
+            <Icon name="mail" size={17} /> {profile.email}
+          </a>
+          <button id="copy-email" type="button" data-email={profile.email} class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line bg-elev px-5 py-3.5 text-sm font-semibold transition-colors hover:border-accent sm:w-auto">
+            <Icon name="copy" size={16} /> <span>Copy email</span>
+          </button>
+        </div>
+
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-muted">
+          <a href={profile.socials.linkedin} target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-fg"><Icon name="linkedin" size={17} /> LinkedIn</a>
+          <a href={profile.socials.github} target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-fg"><Icon name="github" size={17} /> GitHub</a>
+          <a href={profile.socials.portfolio} target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-fg"><Icon name="film" size={17} /> Media portfolio</a>
+          <a href={profile.resumePdf} download class="inline-flex items-center gap-2 hover:text-fg"><Icon name="download" size={17} /> Resume (PDF)</a>
+          {profile.phone && <a href={`tel:${profile.phone.replace(/[^+\d]/g, '')}`} class="inline-flex items-center gap-2 hover:text-fg">{profile.phone}</a>}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const btn = document.getElementById('copy-email') as HTMLButtonElement | null;
+  btn?.addEventListener('click', async () => {
+    const label = btn.querySelector('span')!;
+    try {
+      await navigator.clipboard.writeText(btn.dataset.email!);
+      label.textContent = 'Copied!';
+    } catch {
+      label.textContent = btn.dataset.email!;
+    }
+    setTimeout(() => (label.textContent = 'Copy email'), 2000);
+  });
+</script>

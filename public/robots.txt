@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://roeydeljou.vercel.app/sitemap-index.xml

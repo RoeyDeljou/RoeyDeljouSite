@@ -1,0 +1,96 @@
+---
+/**
+ * Cover art for a project. Uses `image` if provided, otherwise renders
+ * generative gradient art from the project's `hue` and `mark`.
+ */
+interface Props {
+  title: string;
+  hue: number;
+  mark?: string;
+  image?: string;
+  class?: string;
+  size?: 'md' | 'lg';
+}
+const { title, hue, mark, image, class: cls = '', size = 'md' } = Astro.props;
+const h2 = (hue + 48) % 360;
+const label = mark ?? title.slice(0, 2).toUpperCase();
+---
+
+{
+  image ? (
+    <div class={`relative overflow-hidden ${cls}`}>
+      <img src={image} alt={`${title} screenshot`} loading="lazy" decoding="async" class="h-full w-full object-cover" />
+    </div>
+  ) : (
+    <div
+      class={`cover relative overflow-hidden ${cls}`}
+      style={`--h1:${hue};--h2:${h2}`}
+      role="img"
+      aria-label={`${title} cover art`}
+    >
+      <div class="cover-grid absolute inset-0" />
+      <div class="cover-orb cover-orb-a absolute" />
+      <div class="cover-orb cover-orb-b absolute" />
+      <div class="absolute inset-0 grid place-items-center">
+        <span class={`cover-mark font-mono font-bold tracking-tight ${size === 'lg' ? 'text-6xl sm:text-8xl' : 'text-4xl sm:text-5xl'}`}>{label}</span>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .cover {
+    background:
+      radial-gradient(120% 90% at 0% 0%, hsl(var(--h1) 85% 60% / 0.55), transparent 60%),
+      radial-gradient(120% 90% at 100% 100%, hsl(var(--h2) 85% 55% / 0.5), transparent 60%),
+      hsl(var(--h1) 40% 12%);
+  }
+  :global([data-theme='light']) .cover {
+    background:
+      radial-gradient(120% 90% at 0% 0%, hsl(var(--h1) 90% 70% / 0.7), transparent 60%),
+      radial-gradient(120% 90% at 100% 100%, hsl(var(--h2) 90% 65% / 0.6), transparent 60%),
+      hsl(var(--h1) 50% 92%);
+  }
+  .cover-grid {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+  }
+  :global([data-theme='light']) .cover-grid {
+    background-image:
+      linear-gradient(to right, rgb(0 0 0 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(0 0 0 / 0.06) 1px, transparent 1px);
+  }
+  .cover-orb {
+    border-radius: 999px;
+    filter: blur(28px);
+    transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .cover-orb-a {
+    width: 45%;
+    aspect-ratio: 1;
+    top: -10%;
+    right: 8%;
+    background: hsl(var(--h2) 90% 65% / 0.45);
+  }
+  .cover-orb-b {
+    width: 35%;
+    aspect-ratio: 1;
+    bottom: -12%;
+    left: 6%;
+    background: hsl(var(--h1) 90% 65% / 0.4);
+  }
+  .cover-mark {
+    color: rgb(255 255 255 / 0.92);
+    text-shadow: 0 6px 30px hsl(var(--h1) 80% 30% / 0.6);
+    letter-spacing: -0.04em;
+  }
+  :global([data-theme='light']) .cover-mark {
+    color: hsl(var(--h1) 60% 22% / 0.9);
+    text-shadow: none;
+  }
+  :global(.group:hover) .cover-orb-a { transform: translate(-12%, 10%) scale(1.1); }
+  :global(.group:hover) .cover-orb-b { transform: translate(14%, -8%) scale(1.1); }
+</style>

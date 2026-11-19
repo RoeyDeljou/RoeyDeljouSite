@@ -1,0 +1,54 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import Icon from './Icon.astro';
+import { profile } from '../data/profile';
+import { education } from '../data/education';
+---
+
+<section id="about" class="py-20 sm:py-28">
+  <div class="container-x">
+    <SectionHeading eyebrow="About" title="From game engines to production platforms." />
+
+    <div class="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-14">
+      <div class="reveal space-y-5 text-base leading-relaxed text-muted sm:text-lg">
+        {profile.about.map((p) => <p>{p}</p>)}
+
+        <div class="flex flex-wrap gap-x-6 gap-y-2 pt-2 text-sm">
+          <span class="inline-flex items-center gap-2"><Icon name="mapPin" size={16} class="text-accent" /> {profile.location}</span>
+          <span class="inline-flex items-center gap-2"><Icon name="globe" size={16} class="text-accent" /> {profile.languages.join(' · ')}</span>
+          <span class="inline-flex items-center gap-2"><Icon name="users" size={16} class="text-accent" /> {profile.citizenship}</span>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-3 sm:gap-4">
+          {
+            profile.stats.map((s) => (
+              <div class="card reveal p-5">
+                <div class="text-gradient text-3xl font-semibold tracking-tight sm:text-4xl">{s.value}</div>
+                <div class="mt-2 text-xs leading-snug text-muted sm:text-sm">{s.label}</div>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="card reveal p-5">
+          <div class="mb-3 flex items-center gap-2 text-sm font-semibold"><Icon name="graduation" size={17} class="text-accent" /> Education</div>
+          <ul class="space-y-3">
+            {
+              education.map((e) => (
+                <li>
+                  <div class="text-sm font-medium">{e.title}</div>
+                  <div class="text-xs text-subtle">
+                    {e.school}
+                    {e.period && <> · {e.period}</>}
+                  </div>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,65 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import Icon from './Icon.astro';
+import { experience } from '../data/experience';
+---
+
+<section id="experience" class="py-20 sm:py-28">
+  <div class="container-x">
+    <SectionHeading
+      eyebrow="Experience"
+      title="Where I’ve made an impact."
+      subtitle="Simulation platforms, game teams, sports technology — and now production web and AI products."
+    />
+
+    <ol class="relative space-y-6 border-l border-line pl-6 sm:space-y-8 sm:pl-10">
+      {
+        experience.map((job, i) => (
+          <li class="reveal relative">
+            <span class={`absolute top-6 -left-[31px] h-3 w-3 rounded-full ring-4 ring-bg sm:-left-[47px] ${i === 0 ? 'bg-gradient-to-br from-accent to-accent-2' : 'bg-line'}`} />
+            <article class="card p-5 sm:p-7">
+              <header class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                <div>
+                  <h3 class="text-lg font-semibold tracking-tight sm:text-xl">{job.role}</h3>
+                  <p class="mt-0.5 text-sm font-medium text-accent">
+                    {job.companyUrl ? (
+                      <a href={job.companyUrl} target="_blank" rel="noopener" class="hover:underline">{job.company}</a>
+                    ) : (
+                      job.company
+                    )}
+                    {job.location && <span class="font-normal text-subtle"> · {job.location}</span>}
+                  </p>
+                </div>
+                <p class="shrink-0 font-mono text-xs text-subtle sm:pt-1.5">
+                  {job.start} — {job.end}
+                </p>
+              </header>
+
+              <p class="mt-4 text-sm leading-relaxed text-muted sm:text-base">{job.summary}</p>
+
+              <ul class="mt-4 space-y-2">
+                {job.highlights.map((h) => (
+                  <li class="flex gap-3 text-sm leading-relaxed text-muted">
+                    <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+                <ul class="flex flex-wrap gap-1.5">
+                  {job.tech.map((t) => <li class="chip">{t}</li>)}
+                </ul>
+                {job.projectSlug && (
+                  <a href={`/projects/${job.projectSlug}/`} class="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline">
+                    Case study <Icon name="arrowRight" size={14} />
+                  </a>
+                )}
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

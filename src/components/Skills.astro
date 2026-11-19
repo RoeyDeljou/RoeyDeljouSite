@@ -1,0 +1,41 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import Icon from './Icon.astro';
+import { skills } from '../data/skills';
+---
+
+<section id="skills" class="py-20 sm:py-28">
+  <div class="container-x">
+    <SectionHeading
+      eyebrow="Skills"
+      title="The toolkit."
+      subtitle="Deep in Unity and C#, fluent across the modern TypeScript and Python stack, and fast because I treat AI agents as part of the engineering team."
+    />
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        skills.map((g, i) => (
+          <div class={`card reveal p-6 ${i === 0 ? 'relative overflow-hidden sm:col-span-2 lg:col-span-1 lg:row-span-2' : ''}`}>
+            {i === 0 && <div class="pointer-events-none absolute -top-24 -right-24 h-56 w-56 rounded-full bg-accent/20 blur-3xl" />}
+            <div class="relative mb-4 flex items-center gap-3">
+              <span class="grid h-9 w-9 place-items-center rounded-xl bg-accent/10 text-accent">
+                <Icon name={g.icon} size={18} />
+              </span>
+              <h3 class="font-semibold tracking-tight">{g.category}</h3>
+            </div>
+            <ul class="relative flex flex-wrap gap-1.5">
+              {g.items.map((s) => (
+                <li class="chip !text-[0.8rem]">{s}</li>
+              ))}
+            </ul>
+            {i === 0 && (
+              <p class="relative mt-6 text-sm leading-relaxed text-muted">
+                I run Claude Code, Cursor and Codex as a coordinated workflow: written specs and shared contracts first, specialised agents for exploration, planning and implementation, then type checks, tests and review gates before anything ships.
+              </p>
+            )}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

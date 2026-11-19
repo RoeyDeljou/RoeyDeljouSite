@@ -1,0 +1,17 @@
+---
+import Icon from './Icon.astro';
+import { profile } from '../data/profile';
+const year = new Date().getFullYear();
+---
+
+<footer class="no-print border-t border-line py-10">
+  <div class="container-x flex flex-col items-center justify-between gap-4 text-sm text-subtle sm:flex-row">
+    <p>© {year} {profile.name}. Built with Astro & Tailwind.</p>
+    <div class="flex items-center gap-1">
+      <a href="/resume/" class="rounded-full px-3 py-1.5 hover:text-fg">Resume</a>
+      <a href={profile.socials.github} target="_blank" rel="noopener" class="grid h-9 w-9 place-items-center rounded-full hover:text-fg" aria-label="GitHub"><Icon name="github" size={17} /></a>
+      <a href={profile.socials.linkedin} target="_blank" rel="noopener" class="grid h-9 w-9 place-items-center rounded-full hover:text-fg" aria-label="LinkedIn"><Icon name="linkedin" size={17} /></a>
+      <a href={`mailto:${profile.email}`} class="grid h-9 w-9 place-items-center rounded-full hover:text-fg" aria-label="Email"><Icon name="mail" size={17} /></a>
+    </div>
+  </div>
+</footer>
