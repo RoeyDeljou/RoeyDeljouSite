@@ -52,6 +52,11 @@ const selected = (await getProjects()).filter((p) => p.data.featured && p.data.c
                       {j.start} — {j.end}
                     </span>
                   </div>
+                  {j.links && (
+                    <p class="mt-1 flex flex-wrap gap-x-4 text-xs">
+                      {j.links.map((l) => <a href={l.url} class="text-accent hover:underline">{l.label} ↗</a>)}
+                    </p>
+                  )}
                   <ul class="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted marker:text-accent">
                     {j.highlights.map((h) => (
                       <li>{h}</li>

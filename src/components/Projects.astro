@@ -138,6 +138,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* ----- featured: horizontal pinned (desktop live) ----- */
   :global(.hs--live) .hs-wrap { height: 100vh; overflow: hidden; position: relative; display: flex; align-items: center; }
   :global(.hs--live) .hs-track {
+    will-change: transform;
     flex-direction: row;
     width: max-content;
     max-width: none;
@@ -166,7 +167,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </style>
 
 <script>
-  import { gsap, ScrollTrigger, prefersReduced } from '../scripts/motion';
+  import { gsap, ScrollTrigger, prefersReduced, getLenis } from '../scripts/motion';
 
   // Filters
   const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
@@ -204,30 +205,72 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const cards = [...section.querySelectorAll<HTMLElement>('.hs-card')];
     const distance = () => track.scrollWidth - window.innerWidth;
 
+    // The track follows the (already smoothed) scroll 1:1 — a second scrub delay
+    // on top of Lenis is what made it feel rubbery.
     const tween = gsap.to(track, { x: () => -distance(), ease: 'none' });
-    ScrollTrigger.create({
+    const st = ScrollTrigger.create({
       trigger: wrap,
       start: 'top top',
       end: () => `+=${distance()}`,
       pin: true,
-      scrub: 0.6,
+      anticipatePin: 1,
+      scrub: true,
       animation: tween,
       invalidateOnRefresh: true,
       toggleClass: { targets: section.querySelector('.hs-counter')!, className: 'is-on' },
-      onUpdate: (st) => {
-        const i = Math.min(cards.length - 1, Math.round(st.progress * cards.length - 0.35));
-        counter.textContent = String(Math.max(0, i) + 1).padStart(2, '0');
+      onUpdate: (self) => {
+        counter.textContent = String(nearest(self.progress) + 1).padStart(2, '0');
       },
     });
 
-    // Parallax the phone/cover inside each card as it crosses the screen
+    // Progress value at which each card sits at the track's resting position
+    const stops = () => {
+      const d = distance();
+      const first = cards[0].offsetLeft;
+      return cards.map((c) => Math.min(1, (c.offsetLeft - first) / d));
+    };
+    const nearest = (p: number) => {
+      const s = stops();
+      let best = 0;
+      s.forEach((v, i) => { if (Math.abs(v - p) < Math.abs(s[best] - p)) best = i; });
+      return best;
+    };
+
+    // Carousel snap: when scrolling stops inside the track, glide to the nearest card
+    let snapping = false;
+    ScrollTrigger.addEventListener('scrollEnd', () => {
+      if (snapping || !st.isActive) return;
+      const p = st.progress;
+      if (p <= 0.001 || p >= 0.999) return;
+      const s = stops();
+      const i = nearest(p);
+      const target = st.start + s[i] * (st.end - st.start);
+      if (Math.abs(target - window.scrollY) < 4) return;
+      snapping = true;
+      const lenis = getLenis();
+      const done = () => { snapping = false; };
+      if (lenis) lenis.scrollTo(target, { duration: 0.7, easing: (t) => 1 - Math.pow(1 - t, 3), onComplete: done });
+      else { window.scrollTo({ top: target, behavior: 'smooth' }); setTimeout(done, 700); }
+    });
+
+    // Focus: the card in view is full size; its neighbours recede slightly.
+    // Inside each card the screenshot drifts gently (no rotation).
     cards.forEach((card) => {
-      const phone = card.querySelector('.phone, .cover-mark, .browser');
-      if (!phone) return;
-      gsap.fromTo(phone, { yPercent: 8, rotate: 4 }, {
-        yPercent: -6, rotate: -3, ease: 'none',
-        scrollTrigger: { trigger: card, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true },
+      gsap.fromTo(card, { scale: 0.94, opacity: 0.55 }, {
+        scale: 1, opacity: 1, ease: 'power1.out',
+        scrollTrigger: { trigger: card, containerAnimation: tween, start: 'left 85%', end: 'left 35%', scrub: true },
       });
+      gsap.to(card, {
+        scale: 0.94, opacity: 0.55, ease: 'power1.in', immediateRender: false,
+        scrollTrigger: { trigger: card, containerAnimation: tween, start: 'right 65%', end: 'right 15%', scrub: true },
+      });
+      const shot = card.querySelector('.phone, .cover-mark, .browser');
+      if (shot) {
+        gsap.fromTo(shot, { xPercent: 6 }, {
+          xPercent: -6, ease: 'none',
+          scrollTrigger: { trigger: card, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true },
+        });
+      }
     });
   }
 </script>

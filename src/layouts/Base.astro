@@ -62,14 +62,13 @@ const personLd = {
 
     <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
 
-    <!-- Theme: dark by default, respects a saved choice or the OS light preference. -->
+    <!-- Theme: always dark on load. A toggle to light lasts for the current visit only. -->
     <script is:inline>
       (function () {
         var d = document.documentElement;
         d.classList.remove('no-js');
-        var saved = null;
-        try { saved = localStorage.getItem('theme'); } catch (e) {}
-        var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        var theme = 'dark';
+        try { if (sessionStorage.getItem('theme') === 'light') theme = 'light'; localStorage.removeItem('theme'); } catch (e) {}
         d.setAttribute('data-theme', theme);
       })();
     </script>

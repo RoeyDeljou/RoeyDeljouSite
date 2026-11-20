@@ -33,6 +33,8 @@ const projects = defineCollection({
     /** true → shows a "Private repository" badge instead of a GitHub link. */
     repoPrivate: z.boolean().default(false),
     demo: z.string().url().optional(),
+    /** Label for the main demo button (default: 'Visit live app'). */
+    demoLabel: z.string().optional(),
     /** Extra links shown on the project page, e.g. a second live version. */
     links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
     /** e.g. 'Base44', 'Unity' — shown as a badge. */

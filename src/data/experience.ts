@@ -13,6 +13,8 @@ export interface Role {
   highlights: string[];
   tech: string[];
   projectSlug?: string;
+  /** Extra links shown with the role, e.g. a shipped game or the company page. */
+  links?: { label: string; url: string }[];
 }
 
 export const experience: Role[] = [
@@ -56,7 +58,7 @@ export const experience: Role[] = [
   },
   {
     company: 'AddForce Gaming',
-    companyUrl: 'https://www.linkedin.com/company/add-force-gaming/',
+    companyUrl: 'https://www.linkedin.com/company/add-force-studio/',
     role: 'Game Development Team Leader',
     start: 'Jun 2023',
     end: 'Oct 2024',
@@ -67,9 +69,14 @@ export const experience: Role[] = [
       'Ran code reviews and set technical direction focused on code quality and optimization.',
       'Designed and implemented gameplay systems and internal development tools in Unity and C#.',
       'Worked closely with stakeholders to deliver game features on schedule.',
+      'Shipped Space Roads, published on Google Play.',
     ],
     tech: ['Unity', 'C#', 'Team Leadership', 'Code Review', 'Gameplay Systems'],
     projectSlug: 'addforce-gaming',
+    links: [
+      { label: 'Space Roads on Google Play', url: 'https://play.google.com/store/apps/details?id=com.AddForceGaming.SpaceRoads&pcampaignid=web_share' },
+      { label: 'AddForce on LinkedIn', url: 'https://www.linkedin.com/company/add-force-studio/' },
+    ],
   },
   {
     company: 'NFL Health & Safety',

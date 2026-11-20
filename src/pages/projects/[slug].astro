@@ -36,7 +36,7 @@ const { Content } = await render(project);
             {
               data.demo && (
                 <a href={data.demo} target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 text-sm font-semibold text-accent-fg shadow-lg shadow-accent/25">
-                  Visit live app <Icon name="external" size={15} />
+                  {data.demoLabel ?? 'Visit live app'} <Icon name="external" size={15} />
                 </a>
               )
             }

@@ -95,7 +95,9 @@ const years = chrono.map((r) => r.start.match(/\d{4}/)?.[0] ?? '');
                 {job.location && <> · {job.location}</>}
               </p>
               <h3 class="mt-2 text-2xl font-semibold tracking-tight">{job.role}</h3>
-              <p class="text-sm font-semibold text-accent">{job.company}</p>
+              <p class="text-sm font-semibold text-accent">
+                {job.companyUrl ? <a href={job.companyUrl} target="_blank" rel="noopener" class="hover:underline">{job.company} ↗</a> : job.company}
+              </p>
               <ul class="mt-4 space-y-1.5">
                 {job.highlights.slice(0, 3).map((h) => (
                   <li class="flex gap-2.5 text-[0.84rem] leading-snug text-muted">
@@ -104,6 +106,15 @@ const years = chrono.map((r) => r.start.match(/\d{4}/)?.[0] ?? '');
                   </li>
                 ))}
               </ul>
+              {job.links && (
+                <div class="mt-3 flex flex-wrap gap-2">
+                  {job.links.map((l) => (
+                    <a href={l.url} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/20" data-cursor="Open">
+                      {l.label} <Icon name="external" size={12} />
+                    </a>
+                  ))}
+                </div>
+              )}
               <div class="mt-4 flex flex-wrap items-center gap-1.5">
                 {job.tech.slice(0, 5).map((t) => <span class="chip">{t}</span>)}
                 {job.projectSlug && (
@@ -310,7 +321,7 @@ const years = chrono.map((r) => r.start.match(/\d{4}/)?.[0] ?? '');
       if (id === 'outro') return 'next stop';
       if (id === 'nested') return 'zoom · europe';
       const el = frameEls.get(id);
-      return el?.querySelector('.text-accent')?.textContent ?? id;
+      return (el?.querySelector('.text-accent')?.textContent ?? id).replace('↗', '').trim();
     };
 
     let activeIdx = -1;
